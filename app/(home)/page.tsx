@@ -1,6 +1,7 @@
 import { HomeCard } from "@/components/shared/home/home-card";
 import { HomeCarousel } from "@/components/shared/home/home-carousel";
 import ProductSlider from "@/components/shared/product/product-slider";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   getAllCategories,
   getProductsByTag,
@@ -68,14 +69,30 @@ export default async function Page() {
     },
   ];
 
-  const todaysDeal = await getProductsByTag({tag: "todays-deal"});
+  const todaysDeal = await getProductsByTag({ tag: "todays-deal" });
+  const bestSellingProducts = await getProductsByTag({ tag: "best-seller" });
 
   return (
     <>
       <HomeCarousel items={data.carousels} />
       <div className="md:p-4 md:space-y-4 bg-border">
         <HomeCard cards={cards} />
-        <ProductSlider title="Today's Deal" products={todaysDeal} />
+
+        <Card className="w-full rounded-none">
+          <CardContent>
+            <ProductSlider title="Today's Deal" products={todaysDeal} />
+          </CardContent>
+        </Card>
+
+        <Card className="w-full rounded-none">
+          <CardContent>
+            <ProductSlider
+              title="Best Selling Products"
+              products={bestSellingProducts}
+              hideDetails
+            />
+          </CardContent>
+        </Card>
       </div>
     </>
   );
