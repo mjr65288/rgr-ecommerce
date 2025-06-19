@@ -112,7 +112,6 @@
   --sidebar-ring: oklch(0.488 0.243 264.376);
 }
 
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -127,3 +126,17 @@
     height: calc(var(--spacing) * 10);
   }
 }
+
+/* @layer utilities {
+  .header-button {
+    @apply cursor-pointer p-1 border border-transparent hover:borde-white rounded-[2px];
+  }
+
+  .h1-bold {
+    @apply font-bold text-2xl lg:text-3xl;
+  }
+
+  .h2-bold {
+    @apply font-bold text-2xl lg:text-xl;
+  }
+} */
