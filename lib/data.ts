@@ -1,5 +1,43 @@
-import { Data, IProductInput } from '@/types'
+import { Data, IProductInput, IUserInput } from '@/types'
 import { toSlug } from './utils'
+import bycrypt from 'bcryptjs'
+
+const users: IUserInput[] = [
+    {
+        name: 'manuel',
+        email: 'admin@example.com',
+        password: bycrypt.hashSync('123456', 5),
+        role: 'Admin',
+        address: {
+            fullName: 'Manuel',
+            street: '123 Main St',
+            city: 'Anytown',
+            province: 'CA',
+            postalCode: '12345',
+            country: 'USA',
+            phone: '1234567890',
+        },
+        paymentMethod: 'Stripe',
+        emailVerified: false,
+    },
+    {
+        name: 'raul',
+        email: 'rau@example.com',
+        password: bycrypt.hashSync('123456', 5),
+        role: 'User',
+        address: {
+            fullName: 'Raul',
+            street: '123 Main St',
+            city: 'Anytown',
+            province: 'CA',
+            postalCode: '12345',
+            country: 'USA',
+            phone: '1234567890',
+        },
+        paymentMethod: 'Stripe',
+        emailVerified: false,
+    }
+]
 
 const products: IProductInput[] = [
     {
@@ -122,6 +160,7 @@ const products: IProductInput[] = [
 ]
 
 const data: Data = {
+    users,
     products,
     headerMenus: [
         {
