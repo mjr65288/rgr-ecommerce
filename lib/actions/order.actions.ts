@@ -3,7 +3,7 @@
 import { Cart, ShippingAddress } from './../../types/index';
 import { OrderItem } from '@/types'
 import { formatError, round2 } from '../utils'
-import { AVAILABLE_DELIVERY_DATES } from '../constants'
+import { AVAILABLE_DELIVERY_DATES, PAGE_SIZE } from '../constants'
 import { connectToDatabase } from '../db';
 import { auth } from '@/auth';
 import { OrderInputSchema } from '../validator';
@@ -140,38 +140,67 @@ export async function createPayPalOrder(orderId: string) {
 }
 
 export async function approvePayPalOrder(
-  orderId: string,
-  data: { orderID: string }
+    orderId: string,
+    data: { orderID: string }
 ) {
-  await connectToDatabase();
-  try {
-    const order = await Order.findById(orderId).populate("user", "email");
-    if (!order) throw new Error("Order not found");
+    await connectToDatabase();
+    try {
+        const order = await Order.findById(orderId).populate("user", "email");
+        if (!order) throw new Error("Order not found");
 
-    const captureData = await paypal.capturePayment(data.orderID);
-    if (
-      !captureData ||
-      captureData.id !== order.paymentResult?.id ||
-      captureData.status !== "COMPLETED"
-    )
-      throw new Error("Error in paypal payment");
-    order.isPaid = true;
-    order.paidAt = new Date();
-    order.paymentResult = {
-      id: captureData.id,
-      status: captureData.status,
-      email_address: captureData.payer.email_address,
-      pricePaid:
-        captureData.purchase_units[0]?.payments?.captures[0]?.amount?.value,
-    };
-    await order.save();
-    await sendPurchaseReceipt({ order });
-    revalidatePath(`/account/orders/${orderId}`);
+        const captureData = await paypal.capturePayment(data.orderID);
+        if (
+            !captureData ||
+            captureData.id !== order.paymentResult?.id ||
+            captureData.status !== "COMPLETED"
+        )
+            throw new Error("Error in paypal payment");
+        order.isPaid = true;
+        order.paidAt = new Date();
+        order.paymentResult = {
+            id: captureData.id,
+            status: captureData.status,
+            email_address: captureData.payer.email_address,
+            pricePaid:
+                captureData.purchase_units[0]?.payments?.captures[0]?.amount?.value,
+        };
+        await order.save();
+        await sendPurchaseReceipt({ order });
+        revalidatePath(`/account/orders/${orderId}`);
+        return {
+            success: true,
+            message: "Your order has been successfully paid by PayPal",
+        };
+    } catch (err) {
+        return { success: false, message: formatError(err) };
+    }
+}
+
+export async function getMyOrders({
+    limit,
+    page,
+}: {
+    limit?: number
+    page: number
+}) {
+
+    limit = limit || PAGE_SIZE
+    await connectToDatabase()
+    const session = await auth()
+    if (!session) {
+        throw new Error('User is not authenticated')
+    }
+    const skipAmount = (Number(page) - 1) * limit
+    const orders = await Order.find({
+        user: session?.user?.id,
+    })
+        .sort({ createdAt: 'desc' })
+        .skip(skipAmount)
+        .limit(limit)
+    const ordersCount = await Order.countDocuments({ user: session?.user?.id })
+
     return {
-      success: true,
-      message: "Your order has been successfully paid by PayPal",
-    };
-  } catch (err) {
-    return { success: false, message: formatError(err) };
-  }
+        data: JSON.parse(JSON.stringify(orders)),
+        totalPages: Math.ceil(ordersCount / limit),
+    }
 }
