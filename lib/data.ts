@@ -159,9 +159,40 @@ const products: IProductInput[] = [
     },
 ]
 
+const reviews = [
+    {
+        rating: 1,
+        title: 'Mala calidad',
+        comment:
+            'Muy decepcionado. El producto se rompió después de solo unas cuantas veces. No vale la pena el dinero.',
+    },
+    {
+        rating: 2,
+        title: 'No funciona como se describe',
+        comment:
+            'El producto no funciona como se describe. No funciona como se esperaba.',
+    },
+    {
+        rating: 3,
+        title: 'Buen producto',
+        comment: 'El producto es increible, me encantó.',
+    },
+    {
+        rating: 4,
+        title: 'Super producto',
+        comment: 'Producto solido, para el precio es una super oferta.',
+    },
+    {
+        rating: 5,
+        title: 'Muy satisfecho',
+        comment: 'Buen producto, lo recomiendo y lo usaré en mi negocio.',
+    },
+]
+
 const data: Data = {
     users,
     products,
+    reviews,
     headerMenus: [
         {
             name: "Today's Deal",
