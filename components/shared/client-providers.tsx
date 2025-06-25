@@ -1,21 +1,21 @@
-'use client'
-import React from 'react'
-import useCartSidebar from '@/hooks/use-cart-sidebar'
-import CartSidebar from './card-slider'
-import { Toaster } from 'sonner'
-
+"use client";
+import React from "react";
+import useCartSidebar from "@/hooks/use-cart-sidebar";
+import CartSidebar from "./card-slider";
+import { Toaster } from "sonner";
+import { ThemeProvider } from "./theme-provider";
 
 export default function ClientProviders({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const isCartSidebarOpen = useCartSidebar()
+  const isCartSidebarOpen = useCartSidebar();
 
   return (
-    <>
+    <ThemeProvider attribute="class" defaultTheme="light">
       {isCartSidebarOpen ? (
-        <div className='flex min-h-screen'>
+        <div className="flex min-h-screen">
           <div className="flex-1 overflow-hidden">{children}</div>
           <CartSidebar />
         </div>
@@ -23,6 +23,6 @@ export default function ClientProviders({
         <div>{children}</div>
       )}
       <Toaster />
-    </>
-  )
+    </ThemeProvider>
+  );
 }
