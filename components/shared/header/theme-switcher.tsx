@@ -9,17 +9,17 @@ import {
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  //DropdownMenuSeparator,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-//import useColorStore from "@/hooks/use-color-store";
+import useColorStore from "@/hooks/use-color-store";
 import useIsMounted from "@/hooks/use-is-mounted";
 //import { useTranslations } from 'next-intl'
 
 export default function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
-  //const { availableColors, color, setColor } = useColorStore(theme);
+  const { availableColors, color, setColor } = useColorStore(theme);
   //const t = useTranslations('Header')
   const changeTheme = (value: string) => {
     setTheme(value);
@@ -53,9 +53,9 @@ export default function ThemeSwitcher() {
             <Sun className="h-4 w-4 mr-1" /> Light
           </DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
-        {/* <DropdownMenuSeparator /> */}
+        <DropdownMenuSeparator />
         {/* <DropdownMenuLabel>{t('Color')}</DropdownMenuLabel> */}
-        {/* <DropdownMenuLabel>Color</DropdownMenuLabel>
+        <DropdownMenuLabel>Color</DropdownMenuLabel>
 
         <DropdownMenuRadioGroup
           value={color.name}
@@ -68,11 +68,11 @@ export default function ThemeSwitcher() {
                 className="h-4 w-4 mr-1 rounded-full"
               ></div>
 
-              {/* {t(c.name)} *
+              {/* {t(c.name)} */}
               {c.name}
             </DropdownMenuRadioItem>
           ))}
-        </DropdownMenuRadioGroup> */}
+        </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );
