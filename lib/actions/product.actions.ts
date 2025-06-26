@@ -5,6 +5,7 @@ import Product, { IProduct } from '@/lib/db/models/product.model'
 import { PAGE_SIZE } from '../constants'
 import { revalidatePath } from 'next/cache'
 import { formatError } from '../utils'
+import { IProductInput } from '@/types'
 
 
 export async function getAllCategories() {
@@ -273,5 +274,54 @@ export async function getAllProductsForAdmin({
         totalProducts: countProducts,
         from: pageSize * (Number(page) - 1) + 1,
         to: pageSize * (Number(page) - 1) + products.length,
+    }
+}
+
+// GET PRODUCT BY ID (for admin)
+export async function getProductById(id: string) {
+    try {
+        await connectToDatabase()
+        const product = await Product.findById(id)
+        if (!product) throw new Error('Product not found')
+        return JSON.parse(JSON.stringify(product)) as IProduct
+    } catch (error) {
+        throw new Error(formatError(error))
+    }
+}
+
+// CREATE PRODUCT
+export async function createProduct(productData: IProductInput) {
+    try {
+        await connectToDatabase()
+        const product = await Product.create(productData)
+        revalidatePath('/admin/products')
+        return {
+            success: true,
+            message: 'Product created successfully',
+            data: JSON.parse(JSON.stringify(product)),
+        }
+    } catch (error) {
+        return { success: false, message: formatError(error) }
+    }
+}
+
+// UPDATE PRODUCT
+export async function updateProduct(id: string, productData: Partial<IProductInput>) {
+    try {
+        await connectToDatabase()
+        const product = await Product.findByIdAndUpdate(id, productData, {
+            new: true,
+            runValidators: true,
+        })
+        if (!product) throw new Error('Product not found')
+        revalidatePath('/admin/products')
+        revalidatePath(`/product/${product.slug}`)
+        return {
+            success: true,
+            message: 'Product updated successfully',
+            data: JSON.parse(JSON.stringify(product)),
+        }
+    } catch (error) {
+        return { success: false, message: formatError(error) }
     }
 }
