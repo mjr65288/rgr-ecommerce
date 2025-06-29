@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
+import { useTranslations } from 'next-intl'
 
 import { formUrlQuery } from "@/lib/utils";
 
@@ -17,6 +18,7 @@ type PaginationProps = {
 const Pagination = ({ page, totalPages, urlParamName }: PaginationProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations()
 
   const onClick = (btnType: string) => {
     const pageValue = btnType === "next" ? Number(page) + 1 : Number(page) - 1;
@@ -30,7 +32,6 @@ const Pagination = ({ page, totalPages, urlParamName }: PaginationProps) => {
     router.push(newUrl, { scroll: true });
   };
 
-  //const t = useTranslations()
   return (
     <div className="flex items-center gap-2">
       <Button
@@ -40,9 +41,9 @@ const Pagination = ({ page, totalPages, urlParamName }: PaginationProps) => {
         disabled={Number(page) <= 1}
         className="w-28"
       >
-        <ChevronLeft /> Previous
+        <ChevronLeft /> {t('Search.Previous')}
       </Button>
-      Page {page} of {totalPages}
+      {t('Search.Page')} {page} {t('Search.of')} {totalPages}
       <Button
         size="lg"
         variant="outline"
@@ -50,7 +51,7 @@ const Pagination = ({ page, totalPages, urlParamName }: PaginationProps) => {
         disabled={Number(page) >= totalPages}
         className="w-28"
       >
-        Next <ChevronRight />
+        {t('Search.Next')} <ChevronRight />
       </Button>
     </div>
   );

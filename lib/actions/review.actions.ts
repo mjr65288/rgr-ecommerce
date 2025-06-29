@@ -11,7 +11,7 @@ import Review, { IReview } from '@/lib/db/models/review.model'
 import { formatError } from '@/lib/utils'
 import { ReviewInputSchema } from '@/lib/validator'
 import { IReviewDetails, IReviewInput } from '@/types'
-import { PAGE_SIZE } from '../constants'
+import { getSetting } from './setting.actions'
 
 export async function createUpdateReview({
     data,
@@ -110,20 +110,23 @@ export async function getReviews({
     limit?: number
     page: number
 }) {
-    limit = limit || PAGE_SIZE
+    const {
+        common: { pageSize },
+    } = await getSetting()
+    const pageLimit = limit || pageSize
     await connectToDatabase()
-    const skipAmount = (page - 1) * limit
+    const skipAmount = (page - 1) * pageLimit
     const reviews = await Review.find({ product: productId })
         .populate('user', 'name')
         .sort({
             createdAt: 'desc',
         })
         .skip(skipAmount)
-        .limit(limit)
+        .limit(pageLimit)
     const reviewsCount = await Review.countDocuments({ product: productId })
     return {
         data: JSON.parse(JSON.stringify(reviews)) as IReviewDetails[],
-        totalPages: reviewsCount === 0 ? 1 : Math.ceil(reviewsCount / limit),
+        totalPages: reviewsCount === 0 ? 1 : Math.ceil(reviewsCount / pageLimit),
     }
 }
 export const getReviewByProductId = async ({

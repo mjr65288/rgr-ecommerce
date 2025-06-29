@@ -2,10 +2,10 @@
 
 import { connectToDatabase } from '@/lib/db'
 import Product, { IProduct } from '@/lib/db/models/product.model'
-import { PAGE_SIZE } from '../constants'
 import { revalidatePath } from 'next/cache'
 import { formatError } from '../utils'
 import { IProductInput } from '@/types'
+import { getSetting } from './setting.actions'
 
 
 export async function getAllCategories() {
@@ -69,7 +69,7 @@ export async function getProductBySlug(slug: string) {
 export async function getRelatedProductsByCategory({
     category,
     productId,
-    limit = PAGE_SIZE,
+    limit,
     page = 1,
 }: {
     category: string
@@ -77,8 +77,12 @@ export async function getRelatedProductsByCategory({
     limit?: number
     page: number
 }) {
+    const {
+        common: { pageSize },
+    } = await getSetting()
+    const pageLimit = limit || pageSize
     await connectToDatabase()
-    const skipAmount = (Number(page) - 1) * limit
+    const skipAmount = (Number(page) - 1) * pageLimit
     const conditions = {
         isPublished: true,
         category,
@@ -87,11 +91,11 @@ export async function getRelatedProductsByCategory({
     const products = await Product.find(conditions)
         .sort({ numSales: 'desc' })
         .skip(skipAmount)
-        .limit(limit)
+        .limit(pageLimit)
     const productsCount = await Product.countDocuments(conditions)
     return {
         data: JSON.parse(JSON.stringify(products)) as IProduct[],
-        totalPages: Math.ceil(productsCount / limit),
+        totalPages: Math.ceil(productsCount / pageLimit),
     }
 }
 
@@ -114,8 +118,10 @@ export async function getAllProducts({
     rating?: string
     sort?: string
 }) {
-
-    limit = limit || PAGE_SIZE
+    const {
+        common: { pageSize },
+    } = await getSetting()
+    const pageLimit = limit || pageSize
     await connectToDatabase()
 
     const queryFilter =
@@ -168,8 +174,8 @@ export async function getAllProducts({
         ...ratingFilter,
     })
         .sort(order)
-        .skip(limit * (Number(page) - 1))
-        .limit(limit)
+        .skip(pageLimit * (Number(page) - 1))
+        .limit(pageLimit)
         .lean()
 
     const countProducts = await Product.countDocuments({
@@ -181,10 +187,10 @@ export async function getAllProducts({
     })
     return {
         products: JSON.parse(JSON.stringify(products)) as IProduct[],
-        totalPages: Math.ceil(countProducts / limit),
+        totalPages: Math.ceil(countProducts / pageLimit),
         totalProducts: countProducts,
-        from: limit * (Number(page) - 1) + 1,
-        to: limit * (Number(page) - 1) + products.length,
+        from: pageLimit * (Number(page) - 1) + 1,
+        to: pageLimit * (Number(page) - 1) + products.length,
     }
 }
 
@@ -234,9 +240,12 @@ export async function getAllProductsForAdmin({
     sort?: string
     limit?: number
 }) {
+    const {
+        common: { pageSize },
+    } = await getSetting()
+    const pageLimit = limit || pageSize
     await connectToDatabase()
 
-    const pageSize = limit || PAGE_SIZE
     const queryFilter =
         query && query !== 'all'
             ? {
@@ -261,8 +270,8 @@ export async function getAllProductsForAdmin({
         ...queryFilter,
     })
         .sort(order)
-        .skip(pageSize * (Number(page) - 1))
-        .limit(pageSize)
+        .skip(pageLimit * (Number(page) - 1))
+        .limit(pageLimit)
         .lean()
 
     const countProducts = await Product.countDocuments({
@@ -270,10 +279,10 @@ export async function getAllProductsForAdmin({
     })
     return {
         products: JSON.parse(JSON.stringify(products)) as IProduct[],
-        totalPages: Math.ceil(countProducts / pageSize),
+        totalPages: Math.ceil(countProducts / pageLimit),
         totalProducts: countProducts,
-        from: pageSize * (Number(page) - 1) + 1,
-        to: pageSize * (Number(page) - 1) + products.length,
+        from: pageLimit * (Number(page) - 1) + 1,
+        to: pageLimit * (Number(page) - 1) + products.length,
     }
 }
 

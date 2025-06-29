@@ -8,22 +8,28 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { APP_NAME } from "@/lib/constants";
-import { getAllCategories } from "@/lib/actions/product.actions";
+} from '../../ui/select'
+import { getAllCategories } from '@/lib/actions/product.actions'
+import { getTranslations } from 'next-intl/server'
+import data from '@/lib/data'
 
 export default async function Search() {
 
   const categories = await getAllCategories();
+  const {
+    site: { name },
+  } = data.settings[0]
+
+  const t = await getTranslations()
   
   return (
-    <form action="/search" method="GET" className="flex  items-stretch h-10 ">
+    <form action="/search" method="GET" className="flex items-stretch h-11 group">
       <Select name="category">
-        <SelectTrigger className="w-auto h-full dark:border-gray-200 bg-gray-100 text-black border-r  rounded-r-none rounded-l-md rtl:rounded-r-md rtl:rounded-l-none  ">
-          <SelectValue placeholder="All" />
+        <SelectTrigger className="h-11 w-auto bg-white dark:bg-gray-800 text-black dark:text-white border-r border-gray-200 dark:border-gray-600 rounded-l-md rounded-r-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+          <SelectValue placeholder={t('Header.All')} />
         </SelectTrigger>
-        <SelectContent position="popper">
-          <SelectItem value="all">All</SelectItem>
+        <SelectContent position="popper" className="max-h-60">
+          <SelectItem value='all'>{t('Header.All')}</SelectItem>
           {categories.map((category) => (
             <SelectItem key={category} value={category}>
               {category}
@@ -32,16 +38,17 @@ export default async function Search() {
         </SelectContent>
       </Select>
       <Input
-        className="flex-1 rounded-none dark:border-gray-200 bg-gray-100 text-black text-base h-full"
-        placeholder={`Search ${APP_NAME}`}
+        className="h-11 flex-1 rounded-none bg-white dark:bg-gray-800 text-black dark:text-white text-base border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-gray-500 dark:placeholder:text-gray-400"
+        placeholder={t('Header.Search Site', { name })}
         name="q"
         type="search"
+        autoComplete="off"
       />
       <button
         type="submit"
-        className="bg-primary text-primary-foreground text-black rounded-s-none rounded-e-md h-full px-3 py-2 "
+        className="h-11 bg-blue-600 hover:bg-blue-700 text-white rounded-e-md rounded-s-none px-4 py-2 transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
       >
-        <SearchIcon className="w-6 h-6" />
+        <SearchIcon className="w-5 h-5" />
       </button>
     </form>
   );

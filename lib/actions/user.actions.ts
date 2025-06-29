@@ -5,9 +5,12 @@ import { IUserName, IUserSignIn, IUserSignUp } from '@/types'
 import { redirect } from 'next/navigation'
 import { formatError } from '../utils'
 import { connectToDatabase } from '../db'
-import User from '../db/models/user.model'
+import User, { IUser } from '../db/models/user.model'
 import bcrypt from 'bcryptjs'
-import { UserSignUpSchema } from '../validator'
+import { UserSignUpSchema, UserUpdateSchema } from '../validator'
+import { getSetting } from './setting.actions'
+import { revalidatePath } from 'next/cache'
+import { z } from 'zod'
 
 
 export async function signInWithCredentials(user: IUserSignIn) {
@@ -59,4 +62,72 @@ export async function updateUserName(user: IUserName) {
   } catch (error) {
     return { success: false, message: formatError(error) }
   }
+}
+
+export async function deleteUser(id: string) {
+  try {
+    await connectToDatabase()
+    const res = await User.findByIdAndDelete(id)
+    if (!res) throw new Error('Use not found')
+    revalidatePath('/admin/users')
+    return {
+      success: true,
+      message: 'User deleted successfully',
+    }
+  } catch (error) {
+    return { success: false, message: formatError(error) }
+  }
+}
+
+// GET
+export async function getAllUsers({
+  limit,
+  page,
+}: {
+  limit?: number
+  page: number
+}) {
+  const {
+    common: { pageSize },
+  } = await getSetting()
+  const pageLimit = limit || pageSize
+  await connectToDatabase()
+
+  const skipAmount = (Number(page) - 1) * pageLimit
+  const users = await User.find()
+    .sort({ createdAt: 'desc' })
+    .skip(skipAmount)
+    .limit(pageLimit)
+  const usersCount = await User.countDocuments()
+  return {
+    data: JSON.parse(JSON.stringify(users)) as IUser[],
+    totalPages: Math.ceil(usersCount / pageLimit),
+  }
+}
+
+export async function updateUser(user: z.infer<typeof UserUpdateSchema>) {
+  try {
+    await connectToDatabase()
+    const dbUser = await User.findById(user._id)
+    if (!dbUser) throw new Error('User not found')
+    dbUser.name = user.name
+    dbUser.email = user.email
+    dbUser.role = user.role
+    const updatedUser = await dbUser.save()
+    revalidatePath('/admin/users')
+    return {
+      success: true,
+      message: 'User updated successfully',
+      data: JSON.parse(JSON.stringify(updatedUser)),
+    }
+  } catch (error) {
+    return { success: false, message: formatError(error) }
+  }
+}
+
+export async function getUserById(userId: string) {
+  await connectToDatabase()
+  const user = await User.findById(userId)
+  if (!user) throw new Error('User not found')
+  return JSON.parse(JSON.stringify(user)) as IUser
 }

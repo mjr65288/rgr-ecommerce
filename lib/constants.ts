@@ -16,6 +16,12 @@ export const PAGE_SIZE = Number(process.env.NEXT_PUBLIC_PAGE_SIZE) || 9;
 export const FREE_SHIPPING_MIN_PRICE = Number(
   process.env.FREE_SHIPPING_MIN_PRICE) || 35;
 
+export const USER_ROLES = [
+  'admin',
+  'user',
+  'moderator'
+] as const;
+
 export const AVAILABLE_PAYMENT_METHODS = [
   {
     name: 'PayPal',
@@ -56,4 +62,35 @@ export const AVAILABLE_DELIVERY_DATES = [
     freeShippingMinPrice: 35,
   }
 ]
+
+export const COLORS = [
+  'slate',
+  'gray',
+  'zinc',
+  'neutral',
+  'stone',
+  'red',
+  'orange',
+  'amber',
+  'yellow',
+  'lime',
+  'green',
+  'emerald',
+  'teal',
+  'cyan',
+  'sky',
+  'blue',
+  'indigo',
+  'violet',
+  'purple',
+  'fuchsia',
+  'pink',
+  'rose'
+] as const
+
+export const THEMES = [
+  'light',
+  'dark',
+  'system'
+] as const
 

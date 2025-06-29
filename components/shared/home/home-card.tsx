@@ -23,6 +23,7 @@ export function HomeCard({ cards }: { cards: CardItem[] }) {
             <h3 className='text-xl font-bold mb-4'>{card.title}</h3>
             <div className='grid grid-cols-2 gap-4'>
               {card.items.map((item) => (
+                console.log(item.image),
                 <Link
                   key={item.name}
                   href={item.href}

@@ -12,18 +12,12 @@ import {
 } from "@/components/ui/carousel";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useTranslations } from 'next-intl'
+import { ICarousel } from '@/types'
 import { Button } from "@/components/ui/button";
 
-export function HomeCarousel({
-  items,
-}: {
-  items: {
-    image: string;
-    url: string;
-    title: string;
-    buttonCaption: string;
-  }[];
-}) {
+export function HomeCarousel({ items }: { items: ICarousel[] }) {
+  const t = useTranslations('Home')
   const plugin = React.useRef(
     Autoplay({ delay: 3000, stopOnInteraction: true })
   );
@@ -54,10 +48,10 @@ export function HomeCarousel({
                       "text-xl md:text-6xl font-bold mb-4 text-primary  "
                     )}
                   >
-                    {item.title}
+                    {t(`${item.title}`)}
                   </h2>
                   <Button className="hidden md:block">
-                    {item.buttonCaption}
+                    {t(`${item.buttonCaption}`)}
                   </Button>
                 </div>
               </div>
